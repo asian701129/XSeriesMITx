@@ -3,11 +3,13 @@ PROBLEM 3: USING BISECTION SEARCH TO MAKE THE PROGRAM FASTER
 '''
 
 def leftToPay(balanceRemaining, monthlyInterestRate, testPayment):
-    for currentMonth in range(1,13):            
+    for currentMonth in range(1,13):
+        #each month
+        #pay the minimum you want to pay, owe balanceRemaining
         balanceRemaining = balanceRemaining - testPayment
+        #then get charged interest on that remaining amount
         balanceRemaining = balanceRemaining * (1.0+monthlyInterestRate)
-        print ('Month: ' + str(currentMonth))
-        print ('Remaining balance: ' + str(round(balanceRemaining,2)))
+    #final balance after 12 months is the leftover
     finalBalance = balanceRemaining
     return finalBalance
 
@@ -15,73 +17,60 @@ def oneYearPayoff(balance, annualInterestRate):
 
     monthlyInterestRate = annualInterestRate/12.0
     balanceRemaining = balance
-    
-    lowerBound = balanceRemaining/12
-    upperBound = (balanceRemaining*(1+monthlyInterestRate)**2)/12
-    centerValue = (upperBound - lowerBound) /2
+    print str(monthlyInterestRate)
+    lowerBound = balance/12
+    print ('Initial Lower: ' + str(lowerBound))
+    upperBound = ((balance*(1 + monthlyInterestRate)**12))/12
+    print ('Initial Upper: ' + str(upperBound))
+    centerValue = lowerBound + (upperBound - lowerBound) /2
     testPayment = centerValue
+    print ('Initial Tester: ' + str(testPayment))
+    print ''
     
     lowestPayment = 0
     finalBalance = balanceRemaining
 
-    loopcount = 0
+    iterationCount = 0
     
 
-    while (finalBalance - 0) > 0.03 and loopcount < 10:    
+    while (finalBalance > 0.03) and (iterationCount < 25):
         #for this given test payment, check how much is left to pay
+        print ('Iteration: ' + str(iterationCount))
+        print ('Lets try paying: ' + str(testPayment))
         finalBalance = leftToPay(balanceRemaining, monthlyInterestRate, testPayment)
-        if (finalBalance == 0):
-            #if we owe exacatly 0 dollars, then our testPayment is good!
+        print ('We still owe: ' + str(finalBalance))
+        if (abs(finalBalance) <= 0.10):
+            #if we owe less than 10 cents, then our testPayment is good!
             lowestPayment = testPayment
-        elif (finalBalance - 0) > 0.03:
-            #if we are more than 3 cents off, set a new testPayment and go again
+            break
+        else:
+            #if we owe more than 10 cents, set a new testPayment and go again
+            '''finalBalance is not acceptable,
+            so we bisect here, and either we need to pay
+            more money (right)
+            less money (left)
             '''
-            finalBalance is not acceptable, so we bisect here,
-            either we need to pay more money (right)
-            or we overpaid (left)
-            '''
-            if (finalBalance - 0) > 0.03:
-                print 'We owe more than 3 cents remaining'
+            iterationCount = iterationCount + 1
+            if (finalBalance > 0):
+                print ('We need to pay more.')
                 lowerBound = centerValue
-          	centerValue = lowerBound + (upperBound - lowerBound) / 2
-            elif (-finalBalance - 0) < -0.03:
-                print 'We overpaid more than 3 cents'
+                centerValue = lowerBound + (upperBound - lowerBound) / 2
+            elif (finalBalance < 0):
+                print ('We need to pay less.')
                 upperBound = centerValue
-       	        centerValue = upperBound + (upperBound - lowerBound) / 2
-        testPayment = centerValue
-        balanceRemaining = balance
+                centerValue = lowerBound + (upperBound - lowerBound) / 2
+            print ''
+            testPayment = centerValue
+            balanceRemaining = balance
+            finalBalance = balanceRemaining
 
 
     lowestPayment = testPayment
     print ('Lowest Payment: ' + str(round(lowestPayment,2)))
-    
 
 
-    '''
-    this next section of code from problem 2 needs to be re-written
-    '''
-    
-    '''
-    while finalBalance > 0:
-
-        for currentMonth in range(1,13):            
-            balanceRemaining = balanceRemaining - testPayment
-            paidTotal = paidTotal + testPayment
-            balanceRemaining = balanceRemaining * (1.0+monthlyInterestRate)
-            print ('Month: ' + str(currentMonth))
-            print ('Remaining balance: ' + str(round(balanceRemaining,2)))
-
-        finalBalance = balanceRemaining
-	if (finalBalance >=1):
-	    testPayment = testPayment + 10
-	    balanceRemaining = balance
-
-
-    lowestPayment = testPayment
-    print ('Lowest Payment: ' + str(round(lowestPayment,2)))
-    '''
     
     
 #oneYearPayoff(balance, annualInterestRate)
-oneYearPayoff(3329, 0.2)
-oneYearPayoff(4773, 0.2)
+oneYearPayoff(50000000, 0.1)
+#oneYearPayoff(999999, 0.18)
